@@ -27,11 +27,11 @@ fi
 if [ -z "${SAMBA_AD_DNS_BACKEND:-}" ]; then
 	SAMBA_AD_DNS_BACKEND="SAMBA_INTERNAL"
 fi
-if [ -z "${SAMBA_AD_DOMAIN:-}" ]; then
-	SAMBA_AD_DOMAIN="ds.internal"
+if [ -z "${SAMBA_AD_NETBIOS_DOMAIN:-}" ]; then
+	SAMBA_AD_NETBIOS_DOMAIN="DS"
 fi
 if [ -z "${SAMBA_AD_REALM:-}" ]; then
-	SAMBA_AD_REALM="DS"
+	SAMBA_AD_REALM="DS.INTERNAL"
 fi
 if [ -z "${SAMBA_AD_ADMIN_PASSWD:-}" ]; then
 	SAMBA_AD_ADMIN_PASSWD="P@ssw0rd!"
@@ -183,7 +183,7 @@ if [ ! -f "/etc/samba/smb.conf" ]; then
 	samba-tool domain provision \
 		--server-role=dc \
 		--dns-backend="${SAMBA_AD_DNS_BACKEND}" \
-		--domain="${SAMBA_AD_DOMAIN}" \
+		--domain="${SAMBA_AD_NETBIOS_DOMAIN}" \
 		--realm="${SAMBA_AD_REALM}" \
 		--adminpass="${SAMBA_AD_ADMIN_PASSWD}" \
 		--use-rfc2307 \
@@ -201,7 +201,7 @@ fi
 ##############################################################################
 
 cat > /etc/resolv.conf <<- __EOF__
-search ${SAMBA_AD_DOMAIN}
+search $(echo "${SAMBA_AD_REALM}" | tr '[:upper:]' '[:lower:]')
 nameserver 127.0.0.1
 options timeout:1
 __EOF__
