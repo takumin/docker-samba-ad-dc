@@ -27,11 +27,11 @@ fi
 if [ -z "${SAMBA_AD_DNS_BACKEND:-}" ]; then
 	SAMBA_AD_DNS_BACKEND="SAMBA_INTERNAL"
 fi
+if [ -z "${SAMBA_AD_DOMAIN:-}" ]; then
+	SAMBA_AD_DOMAIN="DS.INTERNAL"
+fi
 if [ -z "${SAMBA_AD_NETBIOS_DOMAIN:-}" ]; then
 	SAMBA_AD_NETBIOS_DOMAIN="DS"
-fi
-if [ -z "${SAMBA_AD_REALM:-}" ]; then
-	SAMBA_AD_REALM="DS.INTERNAL"
 fi
 if [ -z "${SAMBA_AD_ADMIN_PASSWD:-}" ]; then
 	SAMBA_AD_ADMIN_PASSWD="P@ssw0rd!"
@@ -110,6 +110,18 @@ if [ "${SAMBA_OPTION_PREFORK_CHILDREN}" -ge 256 ]; then
 	exit 1
 fi
 
+if echo "${SAMBA_AD_DOMAIN}" | grep -Eqsv '^[0-9a-zA-Z\.]+$'; then
+	echo "SAMBA_AD_DOMAIN: '${SAMBA_AD_DOMAIN}'"
+	echo 'Please [0-9a-zA-Z\.]+ value: SAMBA_AD_DOMAIN'
+	exit 1
+fi
+
+if echo "${SAMBA_AD_NETBIOS_DOMAIN}" | grep -Eqsv '^[0-9a-zA-Z]+$'; then
+	echo "SAMBA_AD_NETBIOS_DOMAIN: '${SAMBA_AD_NETBIOS_DOMAIN}'"
+	echo 'Please [0-9a-zA-Z]+ value: SAMBA_AD_NETBIOS_DOMAIN'
+	exit 1
+fi
+
 if [ ! -f "/usr/share/zoneinfo/${TZ}" ]; then
 	echo "TZ: '${TZ}'"
 	echo 'Not Found Timezone: TZ'
@@ -183,8 +195,8 @@ if [ ! -f "/etc/samba/smb.conf" ]; then
 	samba-tool domain provision \
 		--server-role=dc \
 		--dns-backend="${SAMBA_AD_DNS_BACKEND}" \
+		--realm="${SAMBA_AD_DOMAIN}" \
 		--domain="${SAMBA_AD_NETBIOS_DOMAIN}" \
-		--realm="${SAMBA_AD_REALM}" \
 		--adminpass="${SAMBA_AD_ADMIN_PASSWD}" \
 		--use-rfc2307 \
 		--debuglevel=${SAMBA_DEBUG_LEVEL} \
@@ -201,7 +213,7 @@ fi
 ##############################################################################
 
 cat > /etc/resolv.conf <<- __EOF__
-search $(echo "${SAMBA_AD_REALM}" | tr '[:upper:]' '[:lower:]')
+search $(echo "${SAMBA_AD_DOMAIN}" | tr '[:upper:]' '[:lower:]')
 nameserver 127.0.0.1
 options timeout:1
 __EOF__
