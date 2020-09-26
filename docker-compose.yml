@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  #
+  # Samba
+  #
+  samba:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+      args:
+        ALPINE_BRANCH: ${ALPINE_BRANCH:-latest}
+      cache_from:
+        - alpine:${ALPINE_BRANCH:-latest}
+    image: ${REPOSITORY:-takumi/samba-ad-dc}:latest
+    hostname: samba
+    container_name: samba
+    cap_add:
+      - FOWNER
+      - CHOWN
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
+    cap_drop:
+      - ALL
+    networks:
+      - samba
+    ports:
+      - 53:53     # DNS
+      - 88:88     # Kerberos
+      - 123:123   # NTP
+      - 135:135   # End Point Mapper (DCE/RPC Locator Service)
+      - 137:137   # NetBIOS Name Service
+      - 138:138   # NetBIOS Datagram
+      - 139:139   # NetBIOS Session
+      - 389:389   # LDAP
+      - 445:445   # SMB over TCP
+      - 464:464   # Kerberos kpasswd
+      - 636:636   # LDAPS
+      - 3268:3268 # Global Catalog
+      - 3269:3269 # Global Catalog SSL
+    volumes:
+      - samba-config:/etc/samba
+      - samba-data:/var/lib/samba
+    environment:
+      - "SAMBA_UID=${SAMBA_UID:-1000}"
+      - "SAMBA_GID=${SAMBA_GID:-1000}"
+      - "SAMBA_DEBUG_LEVEL=${SAMBA_DEBUG_LEVEL:-1}"
+      - "SAMBA_PROCESS_MODEL=${SAMBA_PROCESS_MODEL:-prefork}"
+      - "SAMBA_OPTION_PREFORK_CHILDREN=${SAMBA_OPTION_PREFORK_CHILDREN:-4}"
+      - "SAMBA_AD_DNS_BACKEND=${SAMBA_AD_DNS_BACKEND:-SAMBA_INTERNAL}"
+      - "SAMBA_AD_DOMAIN=${SAMBA_AD_DOMAIN:-samba.internal}"
+      - "SAMBA_AD_REALM=${SAMBA_AD_REALM:-INTERNAL}"
+      - "SAMBA_AD_ADMIN_PASSWD=${SAMBA_AD_ADMIN_PASSWD:-P@ssw0rd!}"
+      - "TZ=${TZ:-UTC}"
+
+networks:
+  samba:
+    name: samba
+volumes:
+  samba-config:
+    name: samba-config
+  samba-data:
+    name: samba-data
