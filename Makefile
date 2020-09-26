@@ -58,7 +58,8 @@ all: build up
 
 .PHONY: build
 build:
-	@$(RUN_ARGS) docker-compose build --parallel $(BUILD_ARGS)
+	@docker build --target build -t $(REPOSITORY):build $(BUILD_ARGS) .
+	@docker build -t $(REPOSITORY):latest $(BUILD_ARGS) .
 
 #
 # Test Rules

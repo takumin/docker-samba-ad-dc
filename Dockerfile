@@ -21,7 +21,7 @@ RUN echo "Build Config Starting" \
 
 # Install Dockerize
 ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 RUN tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 RUN rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 RUN chown root:root /usr/local/bin/dockerize
@@ -31,10 +31,10 @@ COPY ./injection/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod 0755 /usr/local/bin/docker-entrypoint.sh
 
 #
-# Deploy Container
+# Service Container
 #
 
-FROM alpine:${ALPINE_BRANCH:-latest} AS prod
+FROM alpine:${ALPINE_BRANCH:-latest} AS service
 LABEL maintainer "Takumi Takahashi <takumiiinn@gmail.com>"
 
 # Copy Required Files

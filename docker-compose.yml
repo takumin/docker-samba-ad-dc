@@ -5,14 +5,6 @@ services:
   # Samba
   #
   samba:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: prod
-      args:
-        ALPINE_BRANCH: ${ALPINE_BRANCH:-latest}
-      cache_from:
-        - alpine:${ALPINE_BRANCH:-latest}
     image: ${REPOSITORY:-takumi/samba-ad-dc}:latest
     hostname: samba
     container_name: samba
