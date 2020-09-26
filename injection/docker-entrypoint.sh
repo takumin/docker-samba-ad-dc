@@ -28,10 +28,10 @@ if [ -z "${SAMBA_AD_DNS_BACKEND:-}" ]; then
 	SAMBA_AD_DNS_BACKEND="SAMBA_INTERNAL"
 fi
 if [ -z "${SAMBA_AD_DOMAIN:-}" ]; then
-	SAMBA_AD_DOMAIN="samba.internal"
+	SAMBA_AD_DOMAIN="ds.internal"
 fi
 if [ -z "${SAMBA_AD_REALM:-}" ]; then
-	SAMBA_AD_REALM="INTERNAL"
+	SAMBA_AD_REALM="DS"
 fi
 if [ -z "${SAMBA_AD_ADMIN_PASSWD:-}" ]; then
 	SAMBA_AD_ADMIN_PASSWD="P@ssw0rd!"
